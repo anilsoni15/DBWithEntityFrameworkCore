@@ -17,6 +17,15 @@ namespace DbOprationsWithEFCore
                 log.AddSimpleConsole(Console.WriteLine);
             });
             // Add services to the container.
+            //Add Coers
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngularApp",
+                    builder => builder.WithOrigins("http://localhost:4200")
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod());
+            });
+
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -38,6 +47,7 @@ namespace DbOprationsWithEFCore
 
 
             app.MapControllers();
+            app.UseCors("AllowAngularApp");
 
             app.Run();
         }

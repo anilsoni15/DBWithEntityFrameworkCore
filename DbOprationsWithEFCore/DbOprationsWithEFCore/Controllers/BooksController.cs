@@ -15,7 +15,7 @@ namespace DbOprationsWithEFCore.Controllers
         public async Task<ActionResult> GetBooksUsingDatabase([FromRoute] int id, [FromBody] int? noOfPages)
         {
             var books = await appDbContext.Database.ExecuteSqlAsync($"update books set NoOfPages={noOfPages} where Id={id}");
-                return Ok(books);
+            return Ok(books);
         }
         //Get Value form SQL Proc from  
         [HttpGet("GetBooksByProc")]
@@ -38,10 +38,10 @@ namespace DbOprationsWithEFCore.Controllers
             var columnValue = "10";
             var perameter = new SqlParameter("columnValue", columnValue);
             //only with sql query
-            var books = await appDbContext.Books.FromSql($"select * from Books").Where(x=>x.Id<15).ToListAsync();
+            var books = await appDbContext.Books.FromSql($"select * from Books").Where(x => x.Id < 15).ToListAsync();
 
             // sql query with perameter
-            var books1 = await appDbContext.Books.FromSqlRaw($"select * from Books where {columnName}=@columnValue",perameter).ToListAsync();
+            var books1 = await appDbContext.Books.FromSqlRaw($"select * from Books where {columnName}=@columnValue", perameter).ToListAsync();
             return Ok(books);
         }
 
@@ -138,7 +138,7 @@ namespace DbOprationsWithEFCore.Controllers
             return Ok(model);
         }
 
-        [HttpPut("{bookId}")]
+        [HttpPut("UpdateBook/{bookId}")]
         public async Task<IActionResult> UpdateBook([FromRoute] int bookId, [FromBody] Book model)
         {
             var book = appDbContext.Books.FirstOrDefault(x => x.Id == bookId);
@@ -148,9 +148,20 @@ namespace DbOprationsWithEFCore.Controllers
             }
             book.Title = model.Title;
             book.Description = model.Description;
-
+            book.NoOfPages = model.NoOfPages;
+            book.LanguageId = model.LanguageId;
             await appDbContext.SaveChangesAsync();
             return Ok(model);
+        }
+        [HttpGet("GetBookById/{bookId}")]
+        public Task<IActionResult> GetBookById([FromRoute] int bookId)
+        {
+            var model = appDbContext.Books.FirstOrDefault(x => x.Id == bookId);
+            if (model == null)
+            {
+                return Task.FromResult<IActionResult>(NotFound());
+            }
+            return Task.FromResult<IActionResult>(Ok(model));
         }
         [HttpPut("bulkUpdate")]
         public async Task<IActionResult> UpdateBookInBulk()
